@@ -89,7 +89,8 @@ ADD ./empty_app /root/empty_app
 RUN ls -lh /root && pwd && cd /root/empty_app && \
     chmod 777 /root/empty_app -R && meteor npm i && \
     meteor build /root/build-hot-share --allow-incompatible-update --server-only --server=https://hostgst.tiegushi.com/ && \
-    rm -rf /root/build-hot-share
+    rm -rf /root/build-hot-share && \
+    apt-get install -y vim
 
 # Set build script as default executable
 
