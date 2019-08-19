@@ -1,0 +1,5 @@
+mutenotification = {
+  groupId:,
+  userId:,
+  mutestatus: true/false
+}

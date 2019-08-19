@@ -1,0 +1,123 @@
+<template name="_simpleChatListLayout">
+  <div class="simple-chat">
+    <div class="msg-box">
+      <div class="header">
+        {{#if isGroups}}
+        <div class="left back"><i class="fa fa-angle-left fa-fw"></i></div>
+        {{else}}
+        <div id="follow" class="left" style="text-align:justify;">
+          <!-- <span class="fa fa-plus" style="vertical-align: super;font-size: 8px;display: inline-block;margin: 0;margin-left: 10px;"></span> -->
+          <!-- <i class="fa fa-user" style="font-size: 26px;line-height: 40px;margin-left: -4px;"></i> -->
+          <i class="iconfont icon-zu fa" style="font-size: 22px"></i>
+        </div>
+        {{/if}}
+        <script type="text/javascript">
+        $('.header .back').click(function(){
+          var historyArr = Session.get("history_view");
+          if (historyArr && historyArr.length > 0) {
+            PUB.back();
+          }
+          else{
+            history.go(-1);
+          }
+        })
+        </script>
+        <span>{{title}}</span>
+        {{#if isGroups}}
+          <div class="right groupsProfile"></div>
+        {{else}}
+          <div class="right writeMeaaage">发消息</div>
+        {{/if}}
+
+        <!--<div class="right profile"></div>-->
+        {{#if loading}}
+        <div class="loading"></div>
+        {{/if}}
+      </div>
+      <div class="container-box">
+          {{> yield}}
+      </div>
+    </div>
+  </div>
+  {{> footer}}
+</template>
+<template name="_groupMessageList">
+  <ul class="simple-chat-medialist">
+    <div id="up-and-pcomment" class="bell-line"><img class="before-title" src="/img/bellicon2.png" alt=""><span class="title">赞和评论</span>
+      {{#if is_wait_read_count notReadCountPcomment}}
+        {{#if limit_top_read_count notReadCountPcomment}}
+        <div class="msg_count">99+</div>
+        {{else}}
+        <div class="msg_count">{{notReadCountPcomment}}</div>
+        {{/if}}
+      {{/if}}<i class="fa fa-angle-right after-title" aria-hidden="true"></i></div>
+    {{#each lists}}
+    <li id="{{toUserId}}" msgid='{{_id}}' class="swiperElem">
+      <div class="left">
+        <img src="{{toUserIcon}}">
+        {{#if count}}
+        <span class="reddot"></span>
+        {{/if}}
+      </div>
+      <div class="right">
+       <h2>{{toUserName}}</h2>
+       <p>{{#if count}}[{{count}}条]{{/if}} {{lastText}}</p>
+      </div>
+      <span class="time">{{formatTime updateAt}}</span>
+      {{#if is_associated userId}}
+      <div class="associated_icon">
+        <img src="{{userIcon}}">
+        <span>关联</span>
+      </div>
+      {{/if}}
+      <div id="{{_id}}" class="delBtnContent" data-type="{{sessionType}}" data-touserid="{{toUserId}}">删除</div>
+    </li>
+    {{/each}}
+    <!--<li>
+      <div class="left">
+        <img src="http://imgtu.5011.net/uploads/content/20170309/6425471489051060.jpg">
+      </div>
+      <div class="right">
+       <h2>聊天室:一身冷汗！几十年前对中国人的40大批判，完全不过时</h2>
+       <p>[图片]</p>
+      </div>
+      <span class="time">2017/3/29</span>
+    </li>
+    <li>
+      <div class="left">
+        <img src="http://imgtu.5011.net/uploads/content/20170309/6425471489051060.jpg">
+        <span class="reddot"></span>
+      </div>
+      <div class="right">
+       <h2>电影控</h2>
+       <p>[2条] 18岁参军，港片演技派坏蛋，《鼠胆龙威》医生成经典，现已不在</p>
+      </div>
+      <span class="time">下午 3:40</span>
+    </li>-->
+  </ul>
+  <script>
+  $(function() {
+    touch.on('body', 'swipeup swipedown', function(ev){
+      console.log("swipe: ",ev.type );
+      $('.swiperElem').animate({left: '0px'},100);
+    });
+    touch.live('.simple-chat-medialist', 'swipeup swipedown','.swiperElem', function(ev){
+      $('.swiperElem').animate({left: '0px'},100);
+    });
+    touch.live('.simple-chat-medialist', 'swipeleft swipeing','.swiperElem', function(ev){
+      $('.swiperElem').animate({left: '0px'},100);
+      var x = ev.x;
+      if(x < -40){
+        x = -100;
+      } else {
+        x = 0;
+      }
+      console.log($(ev.target))
+      $(ev.target).parents('.swiperElem').animate({left: x+'px'},100);
+    });
+    touch.live('.simple-chat-medialist', 'swiperight swipeing','.swiperElem', function(ev){
+      $(ev.target).parents('.swiperElem').animate({left: '0px'},100);
+    });
+  })
+  </script>
+</template>

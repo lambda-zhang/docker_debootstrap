@@ -86,10 +86,10 @@ VOLUME $APP_BUILD_PATH
 
 WORKDIR /root
 ADD ./empty_app /root/empty_app
-RUN ls -lh /root && pwd && cd /root/empty_app && \
-    meteor npm i && \
-    meteor build /root/build-hot-share --server=https://hostgst.tiegushi.com/ && \
-    rm -rf /root/build-hot-share
+#RUN ls -lh /root && pwd && cd /root/empty_app && \
+#    meteor npm i && \
+#    meteor build /root/build-hot-share --server=https://hostgst.tiegushi.com/ && \
+#    rm -rf /root/build-hot-share
 
 # Set build script as default executable
 

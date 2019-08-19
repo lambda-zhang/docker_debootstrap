@@ -1,0 +1,477 @@
+<template name="_simpleChatToChatLayout">
+  <style>
+    html,body{
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+    body{height: 100% !important;}
+    #_chat_box{
+      display: -webkit-box;display: -webkit-flex;display: -moz-box;display: -ms-flexbox;display: flex;
+      -webkit-flex-direction: column;-moz-flex-direction: column;-ms-flex-direction: column;flex-direction: column;
+    }
+    #_chat_box > div{display: block;}
+    #_chat_box > div.box{-webkit-flex: 1;-moz-flex-flex: 1;-ms-flex-flex: 1;flex: 1;}
+  </style>
+  <style>
+    {{timeStyles}}
+  </style>
+  <div class="simple-chat">
+    <div class="msg-box" id="_chat_box">
+      <div class="header" style="position: relative; left: auto; right: auto; bottom: auto; top: auto;display: flex;">
+        <div class="left back"><i class="fa fa-angle-left fa-fw" style="width: auto !important;"></i></div>
+        <script type="text/javascript">
+        $('.header .back').click(function(){
+          $('.input-text').blur();
+          var sender = Session.get('msgFormUser');
+          var userId = Meteor.userId();
+          if (sender && sender.id) {
+            userId = sender.id;
+          }
+          var msgSession = SimpleChat.MsgSession.findOne({userId: userId, toUserId: location.search.split("&")[0].replace('?id=', '')});;
+          msgSession && SimpleChat.MsgSession.update({_id: msgSession._id}, {$set: {count: 0}});
+          var currentPage = location.pathname;
+          if(Session.get('simpleChatFormPage') && Session.get('simpleChatFormPage').match('posts')){
+            if(currentPage.match('/to/user')){
+              Session.set('formSimpleChatPage', 'user')
+            } else if(currentPage.match('/to/group')){
+              Session.set('formSimpleChatPage', 'group')
+            }
+          }
+          Meteor.setTimeout(function() {
+            PUB.back();
+          }, 50);
+        })
+        </script>
+        <span>{{roomtitle}}{{#if isGroups}}{{else}}(私聊){{/if}}</span>
+        {{#if isGroups}}
+           <div class="right groupsProfile"></div>
+        {{else}}
+        <div class="rightDropMenu dropdown">
+            <div class="rightButton dropdown-toggle" id="btn-more" data-toggle="dropdown">
+              <i class="fa fa-ellipsis-h" style="height: 40; line-height: 40px; padding-top: 2px;"></i>
+            </div>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="btn-more">
+                {{#if isSubScribeUser}}
+                <li role="presentation"><a id="unSubscribeUser" role="menuitem" tabindex="-1" ><i class="fa fa-check"></i>已关注</a></li>
+                {{else}}
+                <li role="presentation"><a id="subscribeUser" role="menuitem" tabindex="-1" ><i class="fa fa-plus"></i>关注</a></li>
+                {{/if}}
+                <li role="presentation"><a id="addToBlacklist" role="menuitem" tabindex="-1" ><i class="fa fa-ban"></i>加入黑名单</a></li>
+                <li role="presentation"><a id="reporterUser" role="menuitem" tabindex="-1" ><i class="fa fa-flag-o"></i>举报用户</a></li>
+            </ul>
+        </div>
+        {{/if}}
+
+        <!--<div class="right profile"></div>-->
+        {{#if loading}}
+        <div class="loading"></div>
+        {{/if}}
+      </div>
+      <div class="box" style="position: relative; left: auto; right: auto; bottom: auto; top: auto; scroll-behavior: smooth;">
+        <ul class="group-list">
+          {{> yield}}
+        </ul>
+      </div>
+      <div class="footer footbar new-footerbar {{getInputClass}}" style="position: relative; left: auto; right: auto; bottom: auto; top: auto;">
+        <form class="input-form">
+          <!-- <div id="container"></div>
+          <style type="text/css">
+            #container{width: 60px; display: block;position: absolute;left: 0px;bottom: 0;height: 48px;z-index: 998;}
+            #container > div{position: absolute !important;top: 0px !important;left: 0px !important;width: 60px !important;height: 48px !important;overflow: hidden !important;}
+          </style>
+          <div class="btn-box image" id="selectfiles"></div> -->
+          {{#if withVoiceMessage}}
+          <div class="sendInfo">
+              <i class="fa fa-microphone fa1" ></i>
+              <i class="fa fa-keyboard-o fa2" style="display: none"></i>
+          </div>
+          <div class="new-input f3" style="display: none;text-align: center;color: #696161">按住说话</div>
+          {{/if}}
+          <textarea dir="auto" name="msg" id="simple-chat-text" class="new-input input-text" maxlength="5000" placeholder="说点什么" style="-webkit-touch-callout: default; -webkit-user-select: text;"></textarea>
+
+          <script type="text/javascript">autosize($('#simple-chat-text'));</script>
+          <!-- <table>
+            <tr>
+              <td class="center" style="right: 86px;position: absolute; left: 5px; z-index: 4;">
+                <textarea dir="auto" name="msg" id="simple-chat-text" maxlength="5000" class="input-text input-message autogrow-short text" placeholder="说点什么" style="width: 100%; padding: 5px;border:1px solid rgba(225, 225, 226, 1);line-height: 25px; color:black; font-size:14px;border-radius: 5px;"></textarea>
+              </td>
+            </tr>
+          </table> -->
+          <div class="new-btns">
+            <div class="new-btn from-smile-btn"><i class="fa fa-smile-o" aria-hidden="true"></i></div>
+            {{#if hasInputing}}
+            <!-- <div class="new-btn"><div class="new-send-btn">发</div></div> -->
+            <input type="text" value="" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; opacity: 0; line-height: 0px;" />
+            <div class="new-btn from-submit-btn"><div>发送</div></div>
+            {{else}}
+            <div class="new-btn from-other-btn"><i class="fa fa-plus" aria-hidden="true"></i></div>
+            {{/if}}
+          </div>
+          {{#if hasFooterView}}
+          <div class="new-other-box">{{> Template.dynamic template=footerView}}</div>
+          {{/if}}
+          <!-- <div class="send-btn"><input class="btn" type="submit" value="发送" style="border-radius: 5px;" /></div> -->
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="model" style="display: none;">
+    <div class="model-icon">
+      <i class="fa fa-microphone icon1"></i>
+      <img src="">
+      <i class="fa fa-arrow icon2" style="display: none;"></i>
+    </div>
+    <div class="model-text">松开手指 发送语音</div>
+  </div>
+  <div class="thisGroupUsersList">
+    {{> _simpleChatGroupUsersList}}
+  </div>
+  <!--<script type="text/javascript" src="/packages/feiwu_simple-chat/client/lib/crypto1/crypto/crypto.js"></script>
+  <script type="text/javascript" src="/packages/feiwu_simple-chat/client/lib/crypto1/hmac/hmac.js"></script>
+  <script type="text/javascript" src="/packages/feiwu_simple-chat/client/lib/crypto1/sha1/sha1.js"></script>
+  <script type="text/javascript" src="/packages/feiwu_simple-chat/client/lib/base64.js"></script>-->
+  <!--<script type="text/javascript" src="/packages/feiwu_simple-chat/client/lib/plupload-2.1.2/js/plupload.full.min.js"></script>-->
+  <!--<script type="text/javascript" src="/packages/feiwu_simple-chat/client/upload.min.js"></script>-->
+</template>
+
+<template name="_simpleChatToChat">
+  {{#each messages}}
+  {{> _simpleChatToChatItem}}
+  {{/each}}
+</template>
+
+<template name="_simpleChatToChatItemText">{{{convertLink this}}}</template>
+
+
+<template name="_simpleChatToChatItem">
+  <!-- {{#if is_show_time _id}}
+  <li id="{{_id}}" class="time">{{get_time _id}}</li>
+  {{/if}} -->
+  {{{formatChatTimeHtml create_time}}}
+  {{#if to.isPostAbstract}}
+  <li id="{{_id}}" class="{{ta_me form.id}}">
+    <div class="icon {{postAbstractIconStyle to}}"><img src="{{form.icon}}" /></div>
+    <div class="name">{{form.name}}</div>
+      <div class="schat_post_abstract {{postAbstractStyle to}}" id="{{postId}}" data-pindex={{to.pcommentIndexNum}} data-owner={{form.id}} data-ownername={{form.name}} data-ispcomment={{to.isPcomments}}>
+        {{#if to.isThumbsUp}}
+          {{#if to.pcommentIndexNum}}
+          <p>赞了文章 <strong>第{{formatPIndex to.pcommentIndexNum}}段:</strong></p>
+          {{else}}
+           <p>赞了文章</p>
+          {{/if}}
+        {{/if}}
+        {{#if to.isThumbsDown}}
+          {{#if to.pcommentIndexNum}}
+          <p>踩了文章 <strong>第{{formatPIndex to.pcommentIndexNum}}段:</strong></p>
+          {{else}}
+          <p>踩了文章</p>
+          {{/if}}
+        {{/if}}
+        {{#if to.isPcomments}}
+        <p>评论了文章 <strong>第{{formatPIndex to.pcommentIndexNum}}段:</strong></p>
+        {{/if}}
+        {{#if to.isLinkText}}
+          {{#if text}}
+            <p>{{text}}</p>
+          {{/if}}
+        {{/if}}
+        {{#if to.isShare}}
+          {{#if to.pcommentIndexNum}}
+          <p>分享了文章 <strong>第{{formatPIndex to.pcommentIndexNum}}段:</strong></p>
+          {{else}}
+           <p>分享了文章</p>
+          {{/if}}
+        {{/if}}
+        <div>
+          <img class="anstract_img" src="{{mainImage}}"/>
+          <div>
+            <h4 class="abstract_title">{{title}}</h4>
+            <p class="abstract_chapter">{{format_pcomment to.pcomment}}</p>
+          </div>
+        </div>
+        {{#if to.isPcomments}}
+        <div class="abstract_sntence"><strong>评论：</strong>{{{to.pcommentContent}}}</div>
+        {{/if}}
+      </div>
+  </li>
+  {{else}}
+  <li id="{{_id}}" class="{{ta_me form.id}}">
+    <div class="icon">
+      <img src="{{form.icon}}" />
+      {{#if is_associated form.id}}
+      <span>关联</span>
+      {{/if}}
+    </div>
+    <div class="name">{{form.name}}</div>
+    <!--{{#if to.pcommentContent}}
+      <div class="post_abstract" style="background-color: #fff;margin:0;" id="{{postId}}">
+          <div class="abstract_sentence"><span style="white-space: pre-wrap;word-break: break-word;">{{{to.pcommentContent}}}</span></div>
+          <div class="abstract_chapter">对文章《{{title}}{{#if addontitle}}：{{addontitle}}{{/if}}》第{{to.pcommentIndexNum}}段的评论:</div>
+          <div class="abstract_chapter" style=" text-align: left;font-style:italic;">
+            {{isMoreThanHundredChar to.pcomment}}
+          </div>
+      </div>
+    {{else}}-->
+      {{#if text}}
+      <div class="text">
+          {{> Template.dynamic template='_simpleChatToChatItemText' data=text }}
+          <!-- {{{convertLink text}}} -->
+          {{#if is_me form.id}}
+            {{#if status_sending send_status}}
+            <div class="status"><img src="/loading.gif" /></div>
+            {{/if}}
+            {{#if status_failed send_status}}
+            <div class="status sendfailed"><img src="/failed.png" /></div>
+            {{/if}}
+            {{#if withEnableHaveReadMsg}}
+              {{#if is_read}}
+              <span class="status haveRead">已读</span>
+              {{/if}}
+            {{/if}}
+          {{/if}}
+          {{#if people_id}}
+          <!--标记消息 start-->
+            {{#if label_complete}}
+              {{#if is_error images}}
+                <div class="imgs-1-box">
+                  <div class="imgs-1-item">
+                    <div class="my-btn">对</div>
+                    {{#each images}}
+                    {{#if error}}
+                    {{else}}
+                    <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                    {{/if}}
+                    {{/each}}
+                  </div>
+                  <div class="imgs-1-item">
+                    <div class="my-btn">错</div>
+                    {{#each images}}
+                    {{#if error}}
+                    <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                    {{/if}}
+                    {{/each}}
+                  </div>
+                </div>
+              {{else}}
+                {{#if is_remove_label images}}
+                <div class="imgs-1-box">
+                  {{#if is_label images}}
+                  <div class="imgs-1-item">
+                    <div class="my-btn">标</div>
+                    {{#each images}}
+                    {{#if label}}
+                    <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                    {{/if}}
+                    {{/each}}
+                  </div>
+                  {{/if}}
+                  {{#if is_remove images}}
+                  <div class="imgs-1-item">
+                    <div class="my-btn">删</div>
+                    {{#each images}}
+                    {{#if remove}}
+                    <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                    {{/if}}
+                    {{/each}}
+                  </div>
+                  {{/if}}
+                </div>
+                {{/if}}
+              {{/if}}
+            {{else}}
+              {{#if wait_lable}}
+                {{#if is_wait_img images}}
+                  <div class="imgs">
+                    {{#each images}}
+                    {{#if is_wait_item this}}
+                    <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                    {{/if}}
+                    {{/each}}
+                  </div>
+                {{/if}}
+                {{#if is_remove_label images}}
+                  <div class="imgs-1-box">
+                    {{#if is_label images}}
+                    <div class="imgs-1-item">
+                      <div class="my-btn">标</div>
+                      {{#each images}}
+                      {{#if label}}
+                      <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                      {{/if}}
+                      {{/each}}
+                    </div>
+                    {{/if}}
+                    {{#if is_remove images}}
+                    <div class="imgs-1-item">
+                      <div class="my-btn">删</div>
+                      {{#each images}}
+                      {{#if remove}}
+                      <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                      {{/if}}
+                      {{/each}}
+                    </div>
+                    {{/if}}
+                  </div>
+                {{/if}}
+                <div class="line-label-box crop-lable-box"><div class="check">标记</div><div class="crop">裁剪</div><div class="remove">删除</div></div>
+              {{else}}
+                <div class="imgs">
+                  {{#each images}}
+                  <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                  {{/each}}
+                </div>
+                <div class="line-label-box"><div class="yes">对</div><div class="no">错</div></div>
+              {{/if}}
+            {{/if}}
+            <div class="show_more" style="display:none; position: absolute;right: -5px;top: -5px;height: 48px;line-height: 48px;width: 60px;text-align: center;color: #9e9e9e;padding: 0;font-size: 20px;"><i class="fa fa-angle-right"></i></div>
+            {{show_images images}}
+          <!--标记消息 end-->
+          {{/if}}
+      </div>
+      {{else}}
+        {{#if audios}}
+          <div class="img">
+            {{#if is_me form.id}}
+            {{#if status_sending send_status}}
+            <div class="status"><img src="/loading.gif" /></div>
+            {{/if}}
+            {{#if status_failed send_status}}
+            <div class="status sendfailed"><img src="/failed.png" /></div>
+            {{/if}}
+            {{#if withEnableHaveReadMsg}}
+              {{#if is_read}}
+                <span class="status haveRead">已读</span>
+              {{/if}}
+            {{/if}}
+          {{/if}}
+          </div>
+        <!-- <div class="status" style="width: 10px;height: 10px;"></div> -->
+          {{#each audios}}
+            <div class="text audio" data-type="audios" data-url="{{url}}" data-time="{{id}}">
+              <span style="text-align: left;">{{id}}"</span>
+              <!-- <span style="text-align: right;">10</span> -->
+            </div>
+          {{/each}}
+        <!-- send image success -->
+        {{else}}
+          <div class="img">
+            {{#if is_me form.id}}
+              {{#if status_sending send_status}}
+              <div class="status"><img src="/loading.gif" /></div>
+              {{/if}}
+              {{#if status_failed send_status}}
+              <div class="status sendfailed"><img src="/failed.png" /></div>
+              {{/if}}
+              {{#if withEnableHaveReadMsg}}
+                {{#if is_read}}
+                  <span class="status haveRead">已读</span>
+                {{/if}}
+              {{/if}}
+            {{/if}}
+            <div class="imgs">
+              {{#each images}}
+                {{#if url}}
+                  <img class="work-ai-img swipebox" data-type="images" data-peoplehisid="{{people_his_id}}" src="{{url}}" />
+                {{else}}
+                  <img src="{{thumbnail}}" />
+                {{/if}}
+              {{/each}}
+            </div>
+            <!--<div class="line-label-box crop-lable-box"><div class="check">标记</div><div class="crop">裁剪</div><div class="remove">删除</div></div>-->
+          </div>
+        {{/if}}
+      <!-- {{else}}
+      <div class="img"><img src="{{thumbnail}}" /></div>
+      {{/if}} -->
+      {{/if}}
+    <!--{{/if}}-->
+    <!--{{#if label_complete}}
+    <div class="form-to"><div>已标记完成</div></div>
+    {{/if}}-->
+  </li>
+  {{/if}}
+</template>
+
+<template name="_simpleChatToChatLabelBox">
+  <div class="simple-chat-label-box">
+    <div class="mask"></div>
+    <div class="_body">
+      <div class="title">{{title}}</div>
+      <div class="_main">
+        {{#if list}}
+        <select>
+          <optgroup disabled hidden></optgroup>
+          {{#each list}}
+          <option value="{{this}}">{{this}}</option>
+          {{/each}}
+          <option value="">其它</option>
+        </select>
+        <input style="display: none;" type="text" placeholder="{{tips}}" />
+        {{else}}
+        <div class="dest">{{tips}}</div>
+        {{/if}}
+      </div>
+      <div class="btns">
+        {{#each btns}}
+        <div class="my-btn">{{this}}</div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="_simpleChatToChatLabel">
+  <div class="simple-chat-label">
+    {{#if data.label}}
+    <div class="btn-label">此照片是 {{data.label}} 吗？</div>
+    {{else}}
+    <div class="btn-label yes">我想标记此照片</div>
+    {{/if}}
+    {{#if data.label}}
+    <div class="btn-yes"><i class="fa fa-circle-o" aria-hidden="true"></i><i class="fa fa-check" aria-hidden="true"></i></div>
+    <div class="btn-no"><i class="fa fa-circle-o" aria-hidden="true"></i><i class="fa fa-close" aria-hidden="true"></i></div>
+    {{else}}
+    <div class="btn-no" style="top: 5px;"><i class="fa fa-circle-o" aria-hidden="true"></i><i class="fa fa-close" aria-hidden="true"></i></div>
+    {{/if}}
+  </div>
+</template>
+
+<template name="__simpleChatToChatFooterIcons">
+  <!-- {{> emojiKeyboard}} -->
+  <ul class="new-icons" style="height: 150px;overflow-y: scroll;">
+    {{#each emojis}}
+    <li data-name="{{name}}" data-unicode="{{unicode}}">{{wechat}}</li>
+    {{/each}}
+  </ul>
+</template>
+
+<template name="__simpleChatToChatFooterTools">
+  <ul class="new-tools">
+    <li class="new-btn-photo"><i class="fa fa-picture-o" aria-hidden="true"></i>照片</li>
+    <li class="new-btn-camera"><i class="fa fa-camera" aria-hidden="true"></i>拍照</li>
+  </ul>
+</template>
+<template name="_simpleChatGroupUsersList">
+    <div class="groupUsersList">
+        <div class="head">
+            <div class="leftButton back groupUsersListCancle">取消</div>
+            <div class="socialTitle">
+                <span class="Contacts">选择提醒的人</span>
+            </div>
+        </div>
+        <div id="wrapper">
+          {{#each groupUsers}}
+                <div id="{{user_id}}" username='{{user_name}}' class="eachGroupUser">
+                  <!--列出群聊人-->
+                  <img class="icon" src="{{user_icon}}" width="40" height="40">
+                  <span class="userName" style="left: 60px; top: 10px;">{{user_name}}</span>
+                </div>
+                <div class="chatContentLine"></div>
+          {{/each}}
+        </div>
+    </div>
+</template>
