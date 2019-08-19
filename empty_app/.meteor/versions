@@ -79,7 +79,7 @@ matb33:collection-hooks@0.8.4
 mdg:camera@1.4.1
 meteor@1.6.1
 meteor-base@1.0.4
-meteor-phonegap-push@0.0.1
+#meteor-phonegap-push@0.0.1
 meteor-swipe@0.0.10
 meteorhacks:async@1.0.0
 meteorhacks:cluster@1.6.9
