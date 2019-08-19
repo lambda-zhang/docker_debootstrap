@@ -23,7 +23,7 @@ fortawesome:fontawesome
 servicelocale:geoip
 
 matb33:collection-hooks
-meteor-swipe
+#meteor-swipe
 meteorhacks:inject-initial
 email@1.1.17_1
 meteorhacks:cluster
@@ -47,7 +47,7 @@ check@1.2.3
 
 
 ccorcos:neo4j
-npm-container
+#npm-container
 crosswalk@1.6.2
 meteorhacks:subs-manager
 tap:i18n
@@ -60,7 +60,7 @@ service-configuration@1.0.10
 tap:i18n-bundler
 mkarliner:mqtt
 xolvio:backdoor
-baidu:touch
+#baidu:touch
 hybrid:dialogs
 standard-minifier-css@1.2.0_1
 standard-minifier-js@1.2.0_1
