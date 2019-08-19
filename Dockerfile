@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM daocloud.io/library/ubuntu:16.04
 
 # Android SDK variables
 
@@ -85,7 +85,7 @@ VOLUME $APP_BUILD_PATH
 
 
 WORKDIR /root
-ADD ./empty_app /root
+COPY ./empty_app /root
 RUN ls -lh /root && pwd && cd /root/empty_app && meteor build /root/build-hot-share --server=https://hostgst.tiegushi.com/ && rm -rf /root/build-hot-share && rm -rf .meteor/local/
 
 # Set build script as default executable
