@@ -4,7 +4,7 @@ FROM daocloud.io/library/ubuntu:16.04
 
 ENV ANDROID_SDK_URL https://dl.google.com/android/repository/tools_r25.2.5-linux.zip
 ENV ANDROID_SDK_PATH /android
-ENV ANDROID_SDK_FILTER platform-tool,android-25,android-23,build-tools-25.0.2
+ENV ANDROID_SDK_FILTER platform-tool,build-tools-23.0.1,android-23,extra-android-m2repository,extra-google-m2repository,extra-google-google_play_services
 
 # Keystore variables
 
