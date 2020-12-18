@@ -1,1 +1,1 @@
-FROM pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
+FROM atlassian/confluence-server:7.10.0-ubuntu
