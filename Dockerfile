@@ -1,1 +1,1 @@
-FROM atlassian/confluence-server:7.10.0-ubuntu
+FROM rabits/qt:5.14-desktop
